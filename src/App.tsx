@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {DragDropContext, DropResult} from '@hello-pangea/dnd';
 
 import './App.css';
@@ -12,6 +12,19 @@ const App: React.FC = () => {
   const [todo, setTodo] = useState<string>("");
   const [todos, setTodos] = useState<Todo[]>([]);
   const [completedTodos, setCompletedTodos] = useState<Todo[]>([]);
+  
+  useEffect(()=>{
+    const activeTodos = JSON.parse(localStorage.getItem('active-todos') || "[]");
+    const completedTodos = JSON.parse(localStorage.getItem('completed-todos') || "[]");
+    
+    if (activeTodos.length > 0) {
+       setTodos(activeTodos);
+    }
+    
+    if (completedTodos.length > 0) {
+      setCompletedTodos(completedTodos);
+    }
+  },[]);
   
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +60,17 @@ const App: React.FC = () => {
     
     setCompletedTodos(complete);
     setTodos(active);
+    localStorage.setItem('completed-todos', JSON.stringify(complete));
+    localStorage.setItem('active-todos', JSON.stringify(active));
   }
+  
+  useEffect(()=>{
+    localStorage.setItem('active-todos', JSON.stringify(todos));
+  },[todos]);
+  
+  useEffect(()=>{
+    localStorage.setItem('completed-todos', JSON.stringify(completedTodos));
+  },[completedTodos]);
   
   return (
     <DragDropContext onDragEnd={onDragEnd}>
